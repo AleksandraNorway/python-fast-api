@@ -28,7 +28,6 @@ def create_item(item: Item):  # Accepts a request body matching the Item model
     next_id += 1  # Increment the ID counter for the next item
     items.append(item_dict)  # Add the new item to the items list
     return item_dict  # Return the created item as the response
-
 @app.get("/items/{item_id}")  # Register a dynamic GET route to retrieve one item by ID
 def get_item(item_id: int):  # The item_id from the URL path is passed in as an integer
     if item_id < 1 or item_id > len(items):  # If the ID is out of range...
@@ -36,3 +35,12 @@ def get_item(item_id: int):  # The item_id from the URL path is passed in as an 
 
     item = items[item_id - 1]  # List index starts from 0, but item IDs start from 1
     return item  # Return the requested item
+
+@app.delete("/items/{item_id}")  # Register a DELETE route to remove an item by ID
+def delete_item(item_id: int):  # The item_id from the URL path is passed in as an integer
+    global items, next_id  # Use the global items list and next_id counter
+    if item_id < 1 or item_id > len(items):  # If the ID is out of range...
+        raise HTTPException(status_code=404, detail=f"Item {item_id} not found")  # ...return 404 Not Found
+    
+    deleted_item = items.pop(item_id - 1)  # Remove and get the item (item_id is 1-based, list is 0-based)
+    return {"message": f"Item {item_id} deleted successfully", "deleted_item": deleted_item}
