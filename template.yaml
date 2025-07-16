@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: FastAPI on Lambda
+
+Resources:
+  FastApiFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: python3.9
+    Properties:
+      Handler: main.handler
+      Runtime: python3.9
+      CodeUri: .
+      MemorySize: 512
+      Timeout: 30
+      Events:
+        ProxyApi:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+        RootApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY

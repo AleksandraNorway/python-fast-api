@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException  # Import FastAPI to create the app, and HTTPException to handle custom errors
 from pydantic import BaseModel  # Import BaseModel from Pydantic to define data schemas with validation
 from typing import Optional  # Import Optional for optional fields in PATCH requests
+from mangum import Mangum
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()  # Create a FastAPI instance (this is your web app)
+app = FastAPI(root_path="/Prod")  # Create a FastAPI instance (this is your web app)
 
 items = []  # A simple in-memory list to store items (acts like a mock database)
 next_id = 1  # A counter to assign unique IDs to items
@@ -18,6 +20,14 @@ class ItemUpdate(BaseModel):
     name: Optional[str] = None  # Optional field: item name
     price: Optional[float] = None  # Optional field: price
     description: Optional[str] = None  # Optional field: description
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # You can restrict this to specific domains if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")  # Register a GET route at the root (http://localhost:8000/)
 def read_root():  
@@ -49,6 +59,7 @@ def update_item(item_id: int, item: Item):  # The item_id from the URL path is p
     global items  # Use the global items list
     if item_id < 1 or item_id > len(items):  # If the ID is out of range...
         raise HTTPException(status_code=404, detail=f"Item {item_id} not found")
+        
     
     # Update the item with new data while preserving the original ID
     item_dict = item.model_dump()  # Convert the Pydantic model to a standard Python dict
@@ -80,3 +91,5 @@ def patch_item(item_id: int, item_update: ItemUpdate):  # The item_id from the U
         existing_item[field] = value  # Update the specific field
     
     return existing_item  # Return the updated item
+
+handler = Mangum(app)

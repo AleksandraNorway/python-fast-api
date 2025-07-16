@@ -10,3 +10,15 @@ __pycache__/
 
 # Ignore OS files
 .DS_Store
+
+# Ignore AWS SAM build artifacts
+.aws-sam/
+
+# Ignore Lambda deployment packages
+*.zip
+
+# Ignore local SAM CLI config
+samconfig.toml
+
+# Ignore logs
+*.log
